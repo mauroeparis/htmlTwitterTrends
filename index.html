@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Tw Trends</title>
+    <meta name="description" content="Twitter trending word cloud-type thing">
+    <meta name="author" content="Mauro Ezequiel Paris">
+
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:500&display=swap" rel="stylesheet">
+</head>
+
+<body class=" w-full h-full">
+    <div id="trending-map" class="w-full h-full relative">
+
+    </div>
+    <script src="./js/fittext.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const max_width = Math.max(window.innerWidth * 0.75, 800);
+        const trendingMap = document.getElementById('trending-map');
+
+        const setTrends = (trends) => {
+            trends.forEach(t => {
+                trendingMap.innerHTML += TrendingTopic(t)
+                window.fitText(
+                    document.getElementById(t.name),
+                    1,
+                    { minFontSize: '10px' }
+                )
+            });
+        }
+
+        axios.post(
+            `http://0.0.0.0:8080/`,
+            { max_width: parseInt(max_width) }
+        ).then(res => {
+            const trendsArr = res.data;
+            setTrends(trendsArr);
+        }).catch(err => {
+            trendingMap.innerHTML = `
+                <div id="error" class="text-red-600 text-center w-full h-full">
+                    I'm sorry to inform you there has been an error and
+                    the map is not working
+                </div>
+            `;
+            window.fitText(
+                document.getElementById("error"),
+                1,
+                { minFontSize: '10px', maxFontSize: '40px' }
+            )
+        });
+
+        const TrendingTopic = (t) =>  `
+            <div class="absolute" style="
+                    width:${ t.w }px;
+                    height:${ t.h }px;
+                    top:${ t.y }px;
+                    left:${ t.x }px;
+                "
+            >
+                <div class="flex flex-col p-3 self-center w-full">
+                    <div class="
+                        w-full
+                        text-center text-gray-900
+                        font-playfair font-medium leading-tight
+                        "
+                    >
+                        <div id="${t.name}">
+                            ${t.name}
+                        </div>
+                    </div>
+
+                    <div class="flex text-gray-600 justify-center">
+                        <div class="flex border-solid border-r-2 border-gray-800 pr-2 mr-2">
+                            <svg
+                                aria-hidden="true"
+                                focusable="false"
+                                data-prefix="fab"
+                                data-icon="twitter"
+                                role="img"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512"
+                                class="w-6 h-6 text-blue-600 self-center mr-1"
+                            >
+                                <path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z">
+                                </path>
+                            </svg>
+                            <span class="font-bold text-xl">${t.tweet_volume}</span>
+                        </div>
+
+                        <a href=${t.url} class="self-center">
+                            <svg
+                                aria-hidden="true"
+                                focusable="false"
+                                data-prefix="fas"
+                                data-icon="link"
+                                role="img"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512"
+                                class="w-4 h-4 hover:text-blue-900"
+                            >
+                                    <path fill="currentColor" d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z">
+                                    </path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    </script>
+</body>
+
+</html>
